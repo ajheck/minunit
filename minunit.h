@@ -235,6 +235,28 @@ static void (*minunit_teardown)(void) = NULL;
 	}\
 )
 
+#define mu_assert_mem_eq(size, expected, result) MU__SAFE_BLOCK(\
+	const uint8_t* minunit_tmp_e = expected;\
+	const uint8_t* minunit_tmp_r = result;\
+	const size_t minunit_tmp_s = size;\
+	minunit_assert++;\
+	if (!minunit_tmp_e) {\
+		minunit_tmp_e = "<null pointer>";\
+	}\
+	if (!minunit_tmp_r) {\
+		minunit_tmp_r = "<null pointer>";\
+	}\
+	for(size_t i = 0; i < minunit_tmp_s; i ++) {\
+		if(minunit_tmp_e[i] != minunit_tmp_r[i]) {\
+			(void)snprintf(minunit_last_message, MINUNIT_MESSAGE_LEN, "%s failed:\n\t%s:%d: At offset %llu of %llu; 0x%02x expected but was 0x%02x", __func__, __FILE__, __LINE__, i, minunit_tmp_s, minunit_tmp_e[i], minunit_tmp_r[i]);\
+			minunit_status = 1;\
+			return;\
+		} else {\
+			printf(".");\
+		}\
+	}\
+)
+
 /*
  * The following two functions were written by David Robert Nadeau
  * from http://NadeauSoftware.com/ and distributed under the
