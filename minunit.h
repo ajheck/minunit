@@ -240,21 +240,27 @@ static void (*minunit_teardown)(void) = NULL;
 	const uint8_t* minunit_tmp_r = result;\
 	const size_t minunit_tmp_s = size;\
 	minunit_assert++;\
-	if (!minunit_tmp_e) {\
-		minunit_tmp_e = "<null pointer>";\
+	if (minunit_tmp_e == NULL && minunit_tmp_r == NULL) {\
+		printf(".");\
 	}\
-	if (!minunit_tmp_r) {\
-		minunit_tmp_r = "<null pointer>";\
+	if (minunit_tmp_e == NULL && minunit_tmp_r != NULL) {\
+		(void)snprintf(minunit_last_message, MINUNIT_MESSAGE_LEN, "%s failed:\n\t%s:%d: Expected NULL pointer, but result was non-NULL", __func__, __FILE__, __LINE__);\
+		minunit_status = 1;\
+		return;\
+	}\
+	if (minunit_tmp_e != NULL && minunit_tmp_r == NULL) {\
+		(void)snprintf(minunit_last_message, MINUNIT_MESSAGE_LEN, "%s failed:\n\t%s:%d: Expected non-NULL pointer, but result was NULL", __func__, __FILE__, __LINE__);\
+		minunit_status = 1;\
+		return;\
 	}\
 	for(size_t i = 0; i < minunit_tmp_s; i ++) {\
 		if(minunit_tmp_e[i] != minunit_tmp_r[i]) {\
-			(void)snprintf(minunit_last_message, MINUNIT_MESSAGE_LEN, "%s failed:\n\t%s:%d: At offset %llu of %llu; 0x%02x expected but was 0x%02x", __func__, __FILE__, __LINE__, i, minunit_tmp_s, minunit_tmp_e[i], minunit_tmp_r[i]);\
+			(void)snprintf(minunit_last_message, MINUNIT_MESSAGE_LEN, "%s failed:\n\t%s:%d: At offset %llu of %llu; 0x%02x expected but was 0x%02x", __func__, __FILE__, __LINE__, i, minunit_tmp_s - 1, minunit_tmp_e[i], minunit_tmp_r[i]);\
 			minunit_status = 1;\
 			return;\
-		} else {\
-			printf(".");\
 		}\
 	}\
+	printf(".");\
 )
 
 /*
